@@ -14,7 +14,7 @@ public class Main extends JFrame {
     private JLabel statusLabel;
     private final HttpClient httpClient = HttpClient.newHttpClient();
     private static final String API_URL = "https://tinyurl.com/api-create.php?url=";
-    public static final int HEIGHT = 220;
+    public static final int HEIGHT = 225;
     public static final int WIDTH = 360;
 
     public Main() {
