@@ -16,6 +16,8 @@ public class Main extends JFrame {
     private static final String API_URL = "https://tinyurl.com/api-create.php?url=";
     public static final int HEIGHT = 225;
     public static final int WIDTH = 360;
+    private double rotation = 0; // Rotation angle for the pentagram
+    private Timer timer; // Timer for spinning effect
 
     public Main() {
         initUI();
@@ -25,6 +27,13 @@ public class Main extends JFrame {
         setSize(WIDTH, HEIGHT);
         setLocationRelativeTo(null);
         setResizable(false);
+
+        // Initialize and start the timer for spinning effect
+        timer = new Timer(20, e -> {
+            rotation += 0.05; // Increment rotation angle
+            repaint(); // Repaint the frame to update the pentagram
+        });
+        timer.start(); // Start the timer
     }
 
     private void initUI() {
@@ -47,9 +56,10 @@ public class Main extends JFrame {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                drawPentagram(g2d, getWidth() / 2, getHeight() / 2, Math.min(getWidth(), getHeight()) / 2 - 10, 0);
+                drawPentagram(g2d, getWidth() / 2, getHeight() / 2, Math.min(getWidth(), getHeight()) / 2 - 10, rotation);
             }
         };
+
         pentagramPanel.setPreferredSize(new Dimension(120, 120));
 
         // Create panel for URL components
@@ -60,7 +70,7 @@ public class Main extends JFrame {
         // Original URL input
         JLabel urlLabel = new JLabel("Enter URL:");
         originalUrlField = new JTextField(15); // Reduced width
-        
+
         // Shorten button
         JButton shortenButton = new JButton("Shorten");
         shortenButton.addActionListener(e -> shortenUrl());
@@ -98,7 +108,7 @@ public class Main extends JFrame {
         urlPanel.add(copyButton, gbc);
 
         gbc.gridy = 5;
-        gbc.insets = new Insets(5, 0, 0, 0);
+        gbc.insets = new Insets(5, 0, 0,  0);
         urlPanel.add(statusLabel, gbc);
 
         // Create a panel to hold both pentagram and URL panel
@@ -114,6 +124,7 @@ public class Main extends JFrame {
 
     private void shortenUrl() {
         String originalUrl = originalUrlField.getText().trim();
+
         if (originalUrl.isEmpty()) {
             statusLabel.setText("Please enter a URL");
             statusLabel.setForeground(Color.RED);
@@ -163,6 +174,7 @@ public class Main extends JFrame {
 
     private void copyToClipboard() {
         String shortenedUrl = shortenedUrlField.getText();
+
         if (!shortenedUrl.isEmpty()) {
             StringSelection selection = new StringSelection(shortenedUrl);
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -189,7 +201,7 @@ public class Main extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         // Set an icon for the JFrame
         try {
             setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getClassLoader().getResource("images/icon.png")));
@@ -201,29 +213,29 @@ public class Main extends JFrame {
     private void drawPentagram(Graphics2D g2d, int centerX, int centerY, int size, double rotationAngle) {
         // Calculate the five points of the pentagram
         double[][] points = new double[5][2];
-        
+
         // Angle calculations for an inverted pentagram
         double goldenAngle = Math.PI * 2 / 5;
         double baseRotation = Math.PI / 2; // Rotated to point downwards
-        
+
         // Calculate vertex points with additional rotation
         for (int i = 0; i < 5; i++) {
             double angle = i * goldenAngle + baseRotation + rotationAngle;
             points[i][0] = centerX + size * Math.cos(angle);
             points[i][1] = centerY + size * Math.sin(angle);
         }
-        
+
         // Create pentagram path
         Path2D pentagram = new Path2D.Double();
-        
+
         // Connect points to form the inverted star
         pentagram.moveTo(points[0][0], points[0][1]);
         pentagram.lineTo(points[2][0], points[2][1]);
         pentagram.lineTo(points[4][0], points[4][1]);
-        pentagram.lineTo(points[1][0], points[1][1]);
+        pentagram.lineTo(points[1][0], points[1][ 1]);
         pentagram.lineTo(points[3][0], points[3][1]);
         pentagram.closePath();
-        
+
         // Create circle path manually
         Path2D circle = new Path2D.Double();
         int numPoints = 100; // Smooth circle approximation
@@ -231,24 +243,24 @@ public class Main extends JFrame {
             double angle = 2 * Math.PI * i / numPoints;
             double x = centerX + size * Math.cos(angle);
             double y = centerY + size * Math.sin(angle);
-            
+
             if (i == 0) {
                 circle.moveTo(x, y);
             } else {
                 circle.lineTo(x, y);
             }
         }
-        
+
         // Styling
         g2d.setColor(Color.BLACK);
         g2d.setStroke(new BasicStroke(3f));
-        
+
         // Draw circle
         g2d.draw(circle);
-        
+
         // Draw pentagram
         g2d.draw(pentagram);
-        
+
         // Fill pentagram with semi-transparent dark red
         g2d.setColor(new Color(139, 0, 0, 100));
         g2d.fill(pentagram);
